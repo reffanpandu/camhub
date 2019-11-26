@@ -2,6 +2,6 @@
 merupakan tugas project yang mirip dengan sistem vidcall
 
 # contributors
-Aliyyul M
-Reffan P
-Ilham N
+1. Aliyyul M
+2. Reffan P
+3. Ilham N
