@@ -8,6 +8,7 @@ package webcamproject;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -61,6 +62,7 @@ public class WebcamFrame extends javax.swing.JFrame {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(bm, "jpg", baos);
             baos.flush();
+            
             
             byte[] b = baos.toByteArray();
             
@@ -163,6 +165,7 @@ public class WebcamFrame extends javax.swing.JFrame {
         };
         webcam.start();
         jButton1.setEnabled(false);
+        jTextField1.setEnabled(false);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -210,6 +213,10 @@ public class WebcamFrame extends javax.swing.JFrame {
                 try (InputStream inputStream = new ByteArrayInputStream(buff)) {
                     bm = ImageIO.read(inputStream);
                 }
+                AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+                tx.translate(-bm.getWidth(null), 0);
+                AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+                bm = op.filter(bm, null);
                 ImageIcon im = new ImageIcon(bm);
                 jLabel1.setIcon(im);
             }
