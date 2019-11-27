@@ -9,10 +9,13 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -41,7 +44,8 @@ public class WebcamFrame extends javax.swing.JFrame {
         jTabbedPane2.addTab("My Camera", jPanelCamera);
 
         Webcam webcam = Webcam.getDefault();
-        webcam.setViewSize(new Dimension(176, 144));
+        webcam.setViewSize(new Dimension(320, 240));
+        webcam.open();
 
         WebcamPanel panel = new WebcamPanel(webcam);
         panel.setFPSDisplayed(true);
@@ -60,7 +64,7 @@ public class WebcamFrame extends javax.swing.JFrame {
             
             byte[] b = baos.toByteArray();
             
-            InetAddress ia = InetAddress.getByName("localhost");
+            InetAddress ia = InetAddress.getByName("192.168.43.64");
             int Port = 2134;
             DatagramPacket dp = new DatagramPacket(b, b.length, ia, Port);
             DatagramSocket sender = new DatagramSocket();
@@ -79,6 +83,7 @@ public class WebcamFrame extends javax.swing.JFrame {
 
         jButton1 = new javax.swing.JButton();
         jTabbedPane2 = new javax.swing.JTabbedPane();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -91,29 +96,43 @@ public class WebcamFrame extends javax.swing.JFrame {
             }
         });
 
+        jTabbedPane2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jTabbedPane2.setPreferredSize(new java.awt.Dimension(400, 300));
+
+        jTabbedPane1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jTabbedPane1.setPreferredSize(new java.awt.Dimension(400, 300));
+
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jTabbedPane1.addTab("Friend Camera", jLabel1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 672, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(344, 344, 344)
+                        .addComponent(jButton1)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 536, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
+
+        jTabbedPane1.getAccessibleContext().setAccessibleName("Friends Camera");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -131,6 +150,7 @@ public class WebcamFrame extends javax.swing.JFrame {
             }
         };
         webcam.start();
+        jButton1.setEnabled(false);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -174,10 +194,12 @@ public class WebcamFrame extends javax.swing.JFrame {
                 DatagramPacket incoming = new DatagramPacket(buffer,buffer.length);                
                 ds.receive(incoming);
                 byte[] buff = incoming.getData();
-                ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(buff));
-                ImageIcon icon = (ImageIcon) inputStream.readObject();
-                inputStream.close();
-                jLabel1.setIcon(icon);
+                BufferedImage bm;
+                try (InputStream inputStream = new ByteArrayInputStream(buff)) {
+                    bm = ImageIO.read(inputStream);
+                }
+                ImageIcon im = new ImageIcon(bm);
+                jLabel1.setIcon(im);
             }
         } catch(IOException e) {
             
@@ -187,6 +209,7 @@ public class WebcamFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private static javax.swing.JLabel jLabel1;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
     // End of variables declaration//GEN-END:variables
 }
