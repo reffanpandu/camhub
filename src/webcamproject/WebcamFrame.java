@@ -64,7 +64,7 @@ public class WebcamFrame extends javax.swing.JFrame {
             
             byte[] b = baos.toByteArray();
             
-            InetAddress ia = InetAddress.getByName("192.168.43.64");
+            InetAddress ia = InetAddress.getByName("192.168.1.39");
             int Port = 2134;
             DatagramPacket dp = new DatagramPacket(b, b.length, ia, Port);
             DatagramSocket sender = new DatagramSocket();
@@ -188,7 +188,7 @@ public class WebcamFrame extends javax.swing.JFrame {
         });
         
         try {
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[20000];
             DatagramSocket ds = new DatagramSocket(2134);
             while(true) {
                 DatagramPacket incoming = new DatagramPacket(buffer,buffer.length);                
